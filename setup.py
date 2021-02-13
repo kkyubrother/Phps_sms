@@ -8,6 +8,7 @@ setup(
     author='Kkyubrother',
     author_email='kkyubrother@naver.com',
     description='Php School SMS module',
+    packages=find_packages(),
     zip_safe=False,
     setup_requires=['requests>=2.25.1', 'phpserialize>=1.3'],
 )

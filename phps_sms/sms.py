@@ -33,9 +33,7 @@ class SMSData(namedtuple('SMSData', ['tr_to', 'tr_txtmsg'])):
     :param tr_to: 메시지를 받는 사람의 번호(수신자 번호)
     :param tr_txtmsg: 메시지 내용
     """
-    def __init__(self, tr_to: str, tr_txtmsg: str) -> None:
-        str(tr_to)
-        super().__init__(tr_to, tr_txtmsg)
+    pass
 
 
 class SMS():
@@ -76,7 +74,7 @@ class SMS():
         :raises SMSError: 메시지 내용이 없다
         :raises SMSError: 메세지가 너무 길다(auto_slice가 False일 때 한정)
         """
-        tr_to = __valid_tr_to(tr_to=tr_to)
+        tr_to = _valid_tr_to(tr_to=tr_to)
 
         txt_bytes = tr_txtmsg.strip().encode(SERVER_ENCODING)
 
@@ -87,7 +85,7 @@ class SMS():
             if not auto_slice:
                 raise SMSError('tr_txtmsg is too long.')
 
-            for txt_bytes in __slice_tr_txtmsg(tr_txtmsg=tr_txtmsg):
+            for txt_bytes in _slice_tr_txtmsg(tr_txtmsg=tr_txtmsg):
                 self.__data.append(SMSData(tr_to, txt_bytes))
 
         else:
@@ -113,7 +111,7 @@ class SMS():
             'type': 'view',
         }
         res = req_post(SERVER_URL, data=datas)
-        return __decode_response(res.content)
+        return _decode_response(res.content)
 
     def cancel(self, tr_num: int) -> dict:
         """보내기로 예약한 메시지를 취소한다.
@@ -133,9 +131,9 @@ class SMS():
         }
 
         res = req_post(SERVER_URL, data=datas)
-        return __decode_response(res.content)
+        return _decode_response(res.content)
 
-    def send(self, tr_date: datetime.datetime=0, tr_comment: str=None) -> List[dict]:
+    def send(self, tr_date: datetime.datetime=None, tr_comment: str=None) -> List[dict]:
         """메시지를 발송한다.
 
         :param tr_date: 해당 일시에 발송한다.
@@ -176,13 +174,13 @@ class SMS():
             }
 
             res = req_post(SERVER_URL, data=post)
-            result_list.append(__decode_response(res.content))
+            result_list.append(_decode_response(res.content))
 
         self.__data.clear()
         return result_list
 
 
-def __valid_tr_to(tr_to: str) -> str:
+def _valid_tr_to(tr_to: str) -> str:
     """tr_to를 확인하고 올바른 형식을 반환한다.
 
     :param tr_to: 수신자 휴대폰 번호
@@ -203,7 +201,7 @@ def __valid_tr_to(tr_to: str) -> str:
     return num0 + '-' + num_dict['num1'] + '-' + num_dict['num2']
 
 
-def __slice_tr_txtmsg(tr_txtmsg: str) -> List[bytes]:
+def _slice_tr_txtmsg(tr_txtmsg: str) -> List[bytes]:
     """tr_txtmsg를 길이에 맞게 잘라 반환한다.
 
     :param tr_txtmsg: 메시지 본문
@@ -231,7 +229,7 @@ def __slice_tr_txtmsg(tr_txtmsg: str) -> List[bytes]:
 
     return temp_sliced
 
-def __decode_response(content: bytes) -> dict:
+def _decode_response(content: bytes) -> dict:
     r = dict()
     for k, v in php_loads(content).items():
         try:

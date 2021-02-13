@@ -1,0 +1,2 @@
+requests>=2.25.1
+phpserialize>=1.3
